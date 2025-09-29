@@ -218,3 +218,71 @@ git push origin --delete tiger
      - 另一个文件有内容
      - 这属于"不重叠的修改"，可以安全自动合并
      - 当两个分支对同一个文件的修改不重叠时（比如一个分支在文件末尾添加行，另一个分支在文件开头添加行），Git可以自动合并。
+
+## 问题10：删除文件，并git移除跟踪
+
+1. **删除单个文件并提交**
+
+```
+git rm filename.html
+git commit -m "删除 filename.html"
+```
+
+2. **删除所有 .html 文件**
+
+```
+git rm *.html
+git commit -m "删除所有 HTML 文件"
+```
+
+3. **如果文件已在 .gitignore 中，但仍想从 Git 中删除**
+
+```
+git rm --cached *.html
+git commit -m "从 Git 中移除 HTML 文件（保留本地文件）"
+```
+
+4. **递归删除所有目录中的 .html 文件**
+
+```
+git rm **/*.html
+git commit -m "递归删除所有 HTML 文件"
+```
+
+**5.如果只想删除远程文件但保留本地文件**
+
+```
+# 从 Git 中删除但保留本地文件
+git rm --cached *.html
+git commit -m "从版本控制中移除 HTML 文件（保留本地）"
+git push
+```
+
+**查看将要删除的文件（预览）**
+
+```
+git rm -n *.html  # -n 参数用于预览，不会实际删除
+```
+
+**强制删除（即使文件有修改）**
+
+```
+git rm -f *.html
+```
+
+**删除目录**
+
+```
+git rm -r directory_name/
+```
+
+**如果需要同步删除远程仓库里的文件**
+
+```
+# 推送到默认远程分支（通常是 main 或 master）
+git push origin main
+
+# 或者如果你在当前分支
+git push
+```
+

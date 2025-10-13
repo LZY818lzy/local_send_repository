@@ -78,3 +78,118 @@ git push origin main
 2. 全选复制 (`Ctrl+A`, `Ctrl+C`)
 3. 通过SSH连接到Linux服务器
 4. 创建文件并粘贴内容
+
+------
+
+### 问题2：Visual Studio 2022自动上传文件到Linux里面
+
+#### **方法1：使用 Visual Studio 的 SSH 支持**
+
+配置 SSH 连接
+
+1. **打开项目** → 右键点击项目 → **属性**
+2. 在 **调试** 选项卡中：
+   - 选择 **远程调试** 作为调试器
+   - 配置 SSH 连接信息：
+     - 主机名：Linux 服务器 IP
+     - 端口：22（默认）
+     - 用户名：你的 Linux 用户名
+     - 认证：密码或私钥文件
+
+使用远程文件管理器
+
+1. **视图** → **Cloud Explorer**
+2. 添加 SSH 连接
+3. 可以直接拖拽文件/文件夹到远程目录
+
+#### **方法2：使用 SFTP 扩展**
+
+安装 SFTP 扩展
+
+1. **扩展** → **管理扩展**
+2. 搜索安装：
+   - "SFTP"
+   - "SSH FS"
+
+配置 SFTP 设置
+
+在项目根目录创建 `sftp.json`：
+
+json
+
+```
+{
+    "name": "My Linux Server",
+    "host": "your-linux-ip",
+    "protocol": "sftp",
+    "port": 22,
+    "username": "your-username",
+    "password": "your-password",
+    "remotePath": "/home/your-username/project",
+    "uploadOnSave": true,
+    "ignore": ["**/.vscode/**", "**/.git/**"]
+}
+```
+
+#### **方法3：使用 Git 与自动部署**
+
+设置 Git 钩子
+
+在 Linux 服务器上配置 Git 钩子自动同步：
+
+bash
+
+```
+# 在服务器上创建 Git 仓库
+git init --bare your-project.git
+cd your-project.git/hooks
+cat > post-receive << 'EOF'
+#!/bin/bash
+TARGET="/home/your-username/deploy"
+GIT_DIR="/home/your-username/your-project.git"
+BRANCH="main"
+
+while read oldrev newrev ref
+do
+    if [[ $ref = refs/heads/$BRANCH ]];
+    then
+        echo "Ref $ref received. Deploying ${BRANCH} branch to production..."
+        git --work-tree=$TARGET --git-dir=$GIT_DIR checkout -f
+    else
+        echo "Ref $ref received. Doing nothing: only the ${BRANCH} branch may be deployed on this server."
+    fi
+done
+EOF
+
+chmod +x post-receive
+```
+
+#### **方法4：使用 Rsync 脚本**
+
+创建部署脚本
+
+在 VS 2022 中添加生成后事件：
+
+batch
+
+```
+# 在项目属性 → 生成事件 → 后期生成事件
+rsync -avz --delete $(ProjectDir) user@linux-server:/path/to/destination/
+```
+
+或使用 PowerShell 脚本：
+
+powershell
+
+```
+$source = "C:\your\project\path\"
+$destination = "user@linux-server:/home/user/project/"
+& rsync -avz --delete $source $destination
+```
+
+- **推荐方案**
+
+对于日常开发，我推荐：
+
+1. **开发阶段**：使用 SFTP 扩展（方法2），设置 `uploadOnSave: true`
+2. **生产部署**：使用 Git 自动部署（方法3）或 Rsync 脚本

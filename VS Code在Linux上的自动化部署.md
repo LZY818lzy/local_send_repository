@@ -286,6 +286,19 @@ net start msiserver
    wsl --set-default-version 2       # 后续安装默认使用 WSL 2
    ```
 
+- ### 如果这里安装以后，打开ubuntu显示`0x800701bc` 错误
+
+  1. **下载WSL2 Linux内核更新包**
+     你需要从微软官方下载一个必要的更新包。
+     - **官方下载地址**：https://aka.ms/wsl2kernel （此链接在多个搜索结果中被提及）或直接访问：https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi 。
+     - 这个更新包是专门用于解决 `0x800701bc` 错误的。
+  2. **安装更新包**
+     - 找到你刚下载的 `wsl_update_x64.msi` 文件。
+     - **双击运行**它，然后按照安装向导的提示完成安装。
+  3. **完成安装并重启Ubuntu**
+     - 内核更新包安装完成后，**重新启动你的Ubuntu应用**。
+     - 现在，Ubuntu应该可以正常启动并完成最后的安装设置了。
+
 ### 4、VS Code新建终端时出现找不到WSL终端的问题？
 
 - #### 步骤一：安装扩展WSL
